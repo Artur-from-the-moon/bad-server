@@ -9,11 +9,13 @@ import { DB_ADDRESS } from './config'
 import errorHandler from './middlewares/error-handler'
 import serveStatic from './middlewares/serverStatic'
 import routes from './routes'
+import csrf  from 'csurf'
 
 const { PORT = 3000 } = process.env
 const app = express()
 
 app.use(cookieParser())
+const csrfProtection = csrf({ cookie: true });
 
 app.use(cors())
 // app.use(cors({ origin: ORIGIN_ALLOW, credentials: true }));
@@ -21,8 +23,13 @@ app.use(cors())
 
 app.use(serveStatic(path.join(__dirname, 'public')))
 
+app.get('/csrf-token', csrfProtection, (req, res) => {
+    res.json({ csrfToken: req.csrfToken() });
+});
+
 app.use(urlencoded({ extended: true }))
 app.use(json())
+app.use(csrfProtection)
 
 app.options('*', cors())
 app.use(routes)
