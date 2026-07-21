@@ -2,8 +2,8 @@
   "name": "weblarek_frontend",
   "private": true,
   "version": "1.0.0",
-  "description": "< Добавьте описание проекта в свободной форме >",
-  "author": "< Укажите здесь автора работы >",
+  "description": "Плохой сервер",
+  "author": "Артур Адамов",
   "type": "module",
   "scripts": {
     "dev": "vite",
