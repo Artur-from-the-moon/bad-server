@@ -1,16 +1,16 @@
 import { errors } from 'celebrate'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
+import csrf  from 'csurf'
 import 'dotenv/config'
 import express, { json, urlencoded } from 'express'
+import { rateLimit } from 'express-rate-limit'
 import mongoose from 'mongoose'
 import path from 'path'
 import { DB_ADDRESS } from './config'
 import errorHandler from './middlewares/error-handler'
 import serveStatic from './middlewares/serverStatic'
 import routes from './routes'
-import csrf  from 'csurf'
-import { rateLimit } from 'express-rate-limit'
 
 const { PORT = 3000 } = process.env
 const app = express()
