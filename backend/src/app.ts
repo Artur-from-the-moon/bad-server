@@ -10,11 +10,21 @@ import errorHandler from './middlewares/error-handler'
 import serveStatic from './middlewares/serverStatic'
 import routes from './routes'
 import csrf  from 'csurf'
+import { rateLimit } from 'express-rate-limit'
 
 const { PORT = 3000 } = process.env
 const app = express()
 
 app.use(cookieParser())
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+})
+app.use(limiter)
+
 const csrfProtection = csrf({ cookie: true });
 
 app.use(cors())
