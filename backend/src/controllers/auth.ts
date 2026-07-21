@@ -14,7 +14,7 @@ import User from '../models/user'
 const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, password } = req.body
-        const user = await User.findUserByCredentials(email, password)
+        const user = await User.findUserByCredentials(email.toString(), password.toString())
         const accessToken = user.generateAccessToken()
         const refreshToken = await user.generateRefreshToken()
         res.cookie(
@@ -192,9 +192,12 @@ const updateCurrentUser = async (
 ) => {
     const userId = res.locals.user._id
     try {
-        const updatedUser = await User.findByIdAndUpdate(userId, req.body, {
-            new: true,
-        }).orFail(
+        const { name, email } = req.body
+        const updatedUser = await User.findByIdAndUpdate(
+            userId.toString(), 
+            { $set: { name, email } }, 
+            { new: true,}
+        ).orFail(
             () =>
                 new NotFoundError(
                     'Пользователь по заданному id отсутствует в базе'
