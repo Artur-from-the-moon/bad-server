@@ -3,6 +3,7 @@ import { FilterQuery } from 'mongoose'
 import NotFoundError from '../errors/not-found-error'
 import Order from '../models/order'
 import User, { IUser } from '../models/user'
+import escapeRegExp from '../utils/escapeRegExp'
 
 // TODO: Добавить guard admin
 // eslint-disable-next-line max-len
@@ -92,7 +93,7 @@ export const getCustomers = async (
         }
 
         if (search) {
-            const searchRegex = new RegExp(search as string, 'i')
+            const searchRegex = new RegExp(escapeRegExp(search as string), 'i')
             const orders = await Order.find(
                 {
                     $or: [{ deliveryAddress: searchRegex }],
@@ -179,9 +180,10 @@ export const updateCustomer = async (
     next: NextFunction
 ) => {
     try {
+        const { name, email } = req.body
         const updatedUser = await User.findByIdAndUpdate(
-            req.params.id,
-            req.body,
+            req.params.id.toString(),
+            { $set: { name, email } },
             {
                 new: true,
             }
@@ -207,7 +209,7 @@ export const deleteCustomer = async (
     next: NextFunction
 ) => {
     try {
-        const deletedUser = await User.findByIdAndDelete(req.params.id).orFail(
+        const deletedUser = await User.findByIdAndDelete(req.params.id.toString()).orFail(
             () =>
                 new NotFoundError(
                     'Пользователь по заданному id отсутствует в базе'

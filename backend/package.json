@@ -1,7 +1,7 @@
 {
   "name": "weblarek_backend",
   "version": "1.0.0",
-  "description": "< Добавьте описание проекта в свободной форме >",
+  "description": "Плохой сервер",
   "main": "dist/app.js",
   "scripts": {
     "lint": "npx eslint src/**/*.ts",
@@ -11,7 +11,7 @@
     "start": "ts-node src/app.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "< Укажите здесь автора работы >",
+  "author": "Артур Адамов",
   "license": "ISC",
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -37,13 +37,16 @@
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
+    "@types/csurf": "^1.11.5",
     "@types/jsonwebtoken": "^9.0.6",
     "bcryptjs": "^2.4.3",
-    "celebrate": "^15.0.3",
-    "cookie-parser": "^1.4.6",
+    "celebrate": "^12.1.2",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "csurf": "^1.2.2",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-rate-limit": "^8.6.0",
     "jsonwebtoken": "^9.0.2",
     "md5": "^2.3.0",
     "mime-types": "^2.1.35",
