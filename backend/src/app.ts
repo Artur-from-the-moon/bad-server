@@ -4,6 +4,7 @@ import cors from 'cors'
 // import { doubleCsrf } from 'csrf-csrf'
 import 'dotenv/config'
 import express, { json, urlencoded } from 'express'
+import mongoSanitize from 'express-mongo-sanitize'
 import { rateLimit } from 'express-rate-limit'
 import mongoose from 'mongoose'
 import path from 'path'
@@ -25,6 +26,8 @@ const limiter = rateLimit({
     legacyHeaders: false,
 })
 app.use(limiter)
+
+app.use(mongoSanitize())
 
 // app.use(cors())
 app.use(cors({ origin: ORIGIN_ALLOW, credentials: true }))
