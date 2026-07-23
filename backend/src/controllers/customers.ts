@@ -3,6 +3,7 @@ import { FilterQuery } from 'mongoose'
 import NotFoundError from '../errors/not-found-error'
 import Order from '../models/order'
 import User, { IUser } from '../models/user'
+import escapeRegExp from '../utils/escapeRegExp'
 
 // TODO: Добавить guard admin
 // eslint-disable-next-line max-len
@@ -29,6 +30,8 @@ export const getCustomers = async (
             search,
         } = req.query
 
+        const pageSize = Math.min(Number(limit), 10);
+        const currentPage = Number(page);
         const filters: FilterQuery<Partial<IUser>> = {}
 
         if (registrationDateFrom) {
@@ -92,7 +95,7 @@ export const getCustomers = async (
         }
 
         if (search) {
-            const searchRegex = new RegExp(search as string, 'i')
+            const searchRegex = new RegExp(escapeRegExp(search as string), 'i')
             const orders = await Order.find(
                 {
                     $or: [{ deliveryAddress: searchRegex }],
@@ -116,8 +119,8 @@ export const getCustomers = async (
 
         const options = {
             sort,
-            skip: (Number(page) - 1) * Number(limit),
-            limit: Number(limit),
+            skip: (currentPage - 1) * pageSize,
+            limit: pageSize,
         }
 
         const users = await User.find(filters, null, options).populate([
@@ -137,15 +140,15 @@ export const getCustomers = async (
         ])
 
         const totalUsers = await User.countDocuments(filters)
-        const totalPages = Math.ceil(totalUsers / Number(limit))
+        const totalPages = Math.ceil(totalUsers / pageSize)
 
         res.status(200).json({
             customers: users,
             pagination: {
                 totalUsers,
                 totalPages,
-                currentPage: Number(page),
-                pageSize: Number(limit),
+                currentPage,
+                pageSize,
             },
         })
     } catch (error) {
@@ -179,11 +182,13 @@ export const updateCustomer = async (
     next: NextFunction
 ) => {
     try {
+        const { name, email } = req.body
         const updatedUser = await User.findByIdAndUpdate(
-            req.params.id,
-            req.body,
+            req.params.id.toString(),
+            { $set: { name, email } },
             {
                 new: true,
+                runValidators: true
             }
         )
             .orFail(
@@ -207,7 +212,7 @@ export const deleteCustomer = async (
     next: NextFunction
 ) => {
     try {
-        const deletedUser = await User.findByIdAndDelete(req.params.id).orFail(
+        const deletedUser = await User.findByIdAndDelete(req.params.id.toString()).orFail(
             () =>
                 new NotFoundError(
                     'Пользователь по заданному id отсутствует в базе'

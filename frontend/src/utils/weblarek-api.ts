@@ -33,6 +33,7 @@ export type ApiListResponse<Type> = {
 class Api {
     private readonly baseUrl: string
     protected options: RequestInit
+    private csrfToken: string = ''
 
     constructor(baseUrl: string, options: RequestInit = {}) {
         this.baseUrl = baseUrl
@@ -55,9 +56,20 @@ class Api {
 
     protected async request<T>(endpoint: string, options: RequestInit) {
         try {
+            const headers: Record<string, string> = {}
+            const method = (options.method || 'GET').toUpperCase()
+            if (['POST', 'PATCH', 'DELETE'].includes(method)) {
+                const token = await this.fetchCsrfToken()
+                headers['X-CSRF-Token'] = token
+            }
             const res = await fetch(`${this.baseUrl}${endpoint}`, {
                 ...this.options,
                 ...options,
+                headers: {
+                    ...this.options.headers,
+                    ...(options.headers as Record<string, string>),
+                    ...headers,
+                },
             })
             return await this.handleResponse<T>(res)
         } catch (error) {
@@ -65,11 +77,24 @@ class Api {
         }
     }
 
-    private refreshToken = () => {
-        return this.request<UserResponseToken>('/auth/token', {
+    private  fetchCsrfToken = async () => {
+        if (this.csrfToken) return this.csrfToken
+        const res = await this.request<{ csrfToken: string }>('/csrf-token', {
             method: 'GET',
             credentials: 'include',
         })
+        this.csrfToken = res.csrfToken
+        return this.csrfToken
+    }
+
+    private refreshToken = () => {
+        return this.fetchCsrfToken().then(token => 
+            this.request<UserResponseToken>('/auth/token', {
+                method: 'GET',
+                credentials: 'include',
+                headers: { "X-CSRF-Token": token },
+            })
+        )
     }
 
     protected requestWithRefresh = async <T>(
