@@ -19,8 +19,5 @@ authRouter.post('/login', login)
 authRouter.get('/token', refreshAccessToken)
 authRouter.get('/logout', logout)
 authRouter.post('/register', register)
-authRouter.get('/csrf-token', (req, res) => {
-    res.json({ csrfToken: req.csrfToken() });
-});
 
 export default authRouter

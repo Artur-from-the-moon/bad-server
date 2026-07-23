@@ -23,3 +23,4 @@ export const REFRESH_TOKEN = {
     },
 }
 export const { ORIGIN_ALLOW = 'http://localhost:5173'} = process.env
+export const { CSRF_SECRET = 'csrf-secret' } = process.env
